@@ -6,8 +6,11 @@ import android.os.Handler
 import android.os.Looper
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.cyber.restory.databinding.ActivitySplashBinding
 import com.cyber.restory.presentation.MainActivity
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class SplashActivity : AppCompatActivity() {
     private val binding : ActivitySplashBinding by lazy { ActivitySplashBinding.inflate(layoutInflater) }
@@ -15,17 +18,16 @@ class SplashActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(binding.root)
-
-        // 스플래시 화면 관련 로직 구현
         setupSplashScreen()
     }
 
     private fun setupSplashScreen() {
-        // 스플래시 화면 표시 후 메인 화면으로 이동
-        Handler(Looper.getMainLooper()).postDelayed({
-            startActivity(Intent(this, MainActivity::class.java))
+        lifecycleScope.launch {
+            delay(SPLASH_DURATION)
+
+            startActivity(Intent(this@SplashActivity, MainActivity::class.java))
             finish()
-        }, SPLASH_DURATION)
+        }
     }
 
     companion object {

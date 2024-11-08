@@ -1,14 +1,17 @@
 package com.cyber.restory.presentation.contact
 
+import android.app.Activity
 import android.os.Bundle
 import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.cyber.restory.databinding.ActivityContactBinding
 import com.cyber.restory.presentation.contact.viewmodel.ContactViewModel
+import com.cyber.restory.utils.ToastUtils
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -20,51 +23,50 @@ class ContactActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-
         setupListeners()
-        observeUiState()
-        observeSubmitResult()
+        observeViewModel()
     }
 
     private fun setupListeners() {
-        binding.etSpaceName.addTextChangedListener {
-            viewModel.updateSpaceName(it.toString(), binding.etSpaceName.selectionStart)
-        }
-        binding.etSpaceAddress.addTextChangedListener {
-            viewModel.updateSpaceAddress(it.toString(), binding.etSpaceAddress.selectionStart)
-        }
-        binding.etRequestDetails.addTextChangedListener {
-            viewModel.updateRequestDetails(it.toString(), binding.etRequestDetails.selectionStart)
-        }
-        binding.btnSubmit.setOnClickListener {
+        with(binding) {
+            etSpaceName.addTextChangedListener {
+                viewModel.updateSpaceName(it.toString(), etSpaceName.selectionStart)
+            }
+            etSpaceAddress.addTextChangedListener {
+                viewModel.updateSpaceAddress(it.toString(), etSpaceAddress.selectionStart)
+            }
+            etRequestDetails.addTextChangedListener {
+                viewModel.updateRequestDetails(it.toString(), etRequestDetails.selectionStart)
+            }
+            btnSubmit.setOnClickListener {
 //            viewModel.submitRequest()
-            /*
-            * 서버 요청 필요
-            * */
-            Toast.makeText(this@ContactActivity, "준비중입니다.", Toast.LENGTH_SHORT).show()
-        }
+                /*
+                * 서버 요청 필요
+                * */
+                ToastUtils.showToast("준비중입니다.")
+            }
 
-        binding.toolbarContact.setNavigationOnClickListener {
-            finish()
+            toolbarContact.setNavigationOnClickListener {
+                finish()
+            }
         }
     }
 
-    private fun observeSubmitResult() {
+    // TODO: lifecycle 확장함수 공통화
+    private fun observeViewModel() {
         lifecycleScope.launch {
             viewModel.submitSuccess.collect {
-                Toast.makeText(this@ContactActivity, "요청이 성공적으로 제출되었습니다.", Toast.LENGTH_SHORT).show()
+                ToastUtils.showToast("요청이 성공적으로 제출되었습니다.")
                 finish()
             }
         }
 
         lifecycleScope.launch {
             viewModel.submitError.collect { errorMessage ->
-                Toast.makeText(this@ContactActivity, "요청 제출에 실패했습니다: $errorMessage", Toast.LENGTH_SHORT).show()
+                ToastUtils.showToast("요청 제출에 실패했습니다")
             }
         }
-    }
 
-    private fun observeUiState() {
         lifecycleScope.launch {
             viewModel.uiState.collect { state ->
                 updateEditTextIfNeeded(binding.etSpaceName, state.spaceName, state.spaceNameCursor)

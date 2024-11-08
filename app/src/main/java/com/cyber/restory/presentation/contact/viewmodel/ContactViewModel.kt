@@ -63,6 +63,7 @@ class ContactViewModel @Inject constructor(
         _uiState.update { it.copy(isSubmitEnabled = isEnabled) }
     }
 
+    // TODO 추후 서버 API 연동
     fun submitRequest() {
         viewModelScope.launch {
             val request = ContactRequest(
